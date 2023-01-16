@@ -76,6 +76,6 @@ setInterval(function() {
 
 <div class='document'  bind:clientWidth={docW} bind:clientHeight={docH} >
     <div class='area' bind:clientWidth={mapW} bind:clientHeight={mapH} style='top: {top}; left: {left}'>
-        <img src='/map.png'  >
+        <img src='/map.svg'  >
     </div>
 </div>
