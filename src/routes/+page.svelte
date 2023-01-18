@@ -1,37 +1,38 @@
 <script>
 
-let docW, mapW, docH, mapH;
+var docDimensions = [0,0];
+var mapDimensions = [0,0]; 
+var viewPos       = [0,0];
+var pos           = [0,0];
+var posMouse      = [0,0];
+var posMouseHook  = [0,0];
 
-var top = 0;
-var left = 0;
+var isMouse = false;
 
-var keys = {};
-
-var vel = [0,0];
-var pos = [0,0];
-
-function keydown(e) {
-    keys[e.key.toLowerCase()] = true;
+function mouseDown(e) {
+    isMouse = true;
 };
 
-function keyup(e) {
-    keys[e.key.toLowerCase()] = false;
+function mouseUp(e) {
+    isMouse = false;
 };
 
-setInterval(function() {
-    var isShift = keys['q'];
-    vel[0] += ((keys['a'] ? 1 : 0) - (keys['d'] ? 1 : 0)) * (isShift ? 5 : 1);
-    vel[1] += ((keys['w'] ? 1 : 0) - (keys['s'] ? 1 : 0)) * (isShift ? 5 : 1);
+function mouseMove(e) {
+    posMouse = [e.clientX,e.clientY];    
 
-    vel[0] *= 0.9;
-    vel[1] *= 0.9;
+    if (isMouse) {
+        for (var i = 0; i < 2; i++) {     
+            var deltaPos = posMouse[i] - posMouseHook[i];
+            pos[i] += deltaPos;
 
-    pos[0] += vel[0];
-    pos[1] += vel[1];
+            var viewOffset = mapDimensions[i] - docDimensions[i];
+            viewPos[i] = (pos[i] - viewOffset / 2) + 'px';
+        }
+    }
 
-    left = (pos[0] - mapW/2 + docW/2) + 'px';
-    top = (pos[1] - mapH/2 + docH/2) + 'px';
-},10);
+    posMouseHook = posMouse;
+
+};
 </script>
 
 <style>
@@ -58,24 +59,20 @@ setInterval(function() {
         z-index: 1;
     
         color: var(--light-1);
-    }
-    
-    #ui-right {
-        text-align: right;
-    }
+    } 
 
 </style>
 
-<svelte:window on:keydown={keydown} on:keyup={keyup}/>
+<svelte:window on:mousedown={mouseDown} on:mouseup={mouseUp} on:mousemove={mouseMove}/>
  
 <div id='ui-wrap'>
     <div>
-        WASD to pan or move map (+ Q to speed up) <br/>
+        Mouse to pan or move map <br/>
     </div> 
 </div>
 
-<div class='document'  bind:clientWidth={docW} bind:clientHeight={docH} >
-    <div class='area' bind:clientWidth={mapW} bind:clientHeight={mapH} style='top: {top}; left: {left}'>
+<div class='document'  bind:clientWidth={docDimensions[0]} bind:clientHeight={docDimensions[1]} >
+    <div class='area' bind:clientWidth={mapDimensions[0]} bind:clientHeight={mapDimensions[1]} style='top: {viewPos[1]}; left: {viewPos[0]}'>
         <img src='/map.svg'  >
     </div>
 </div>
